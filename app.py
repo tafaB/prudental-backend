@@ -35,7 +35,7 @@ def get_events_between_hours(service, val_date: date, start_hour=9, end_hour=17)
     start_time = datetime.combine(val_date, time(start_hour, 0), tzinfo=time_zone).isoformat() # 2026-01-06T09:00:00+01:00
     end_time = datetime.combine(val_date, time(end_hour, 0), tzinfo=time_zone).isoformat() # 2026-01-06T17:00:00+01:00
     events = service.events().list(
-                calendarId = "beringtafa5@gmail.com",
+                calendarId = "prudentalclinic2025@gmail.com",
                 timeMin = start_time,
                 timeMax = end_time,
                 singleEvents = True,
@@ -82,7 +82,7 @@ def create_calendar_event(service, title, description, start_time, end_time):
         }
     try:
         event = service.events().insert(
-                    calendarId='beringtafa5@gmail.com',
+                    calendarId='prudentalclinic2025@gmail.com',
                     body=event_body
                 ).execute()
         return {
