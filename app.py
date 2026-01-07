@@ -96,7 +96,7 @@ def create_calendar_event(service, title, description, start_time, end_time):
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173","https://prudental.al/"],
+    allow_origins=["http://localhost:5173","https://prudental.al"],
     allow_credentials=True,
     allow_methods=["GET", "POST"],
     allow_headers=["*"],
