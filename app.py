@@ -122,13 +122,6 @@ Prudental Dental Clinic
     except Exception as e:
         print(f"Error sending email: {e}")
 
-send_confirmation_email(
-    recipient_email="beringtafa5@gmail.com",
-    patient_name="Bering Tafa",
-    appointment_time=datetime.now().strftime("%B %d, %Y at %H:%M"),
-    service="Emergency Care"
-)
-
 # API Endpoints
 app = FastAPI()
 app.add_middleware(
