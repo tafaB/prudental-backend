@@ -8,6 +8,8 @@ from pydantic import BaseModel
 from datetime import date, datetime, time, timedelta
 from zoneinfo import ZoneInfo
 from googleapiclient.errors import HttpError
+import smtplib
+from email.message import EmailMessage
 
 if os.getenv("RENDER") is None: 
     from dotenv import load_dotenv
@@ -92,6 +94,41 @@ def create_calendar_event(service, title, description, start_time, end_time):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error creating event: {e}")
 
+# Email Confirmation
+def send_confirmation_email(recipient_email, patient_name, appointment_time, service):
+    msg = EmailMessage()
+    msg["Subject"] = "Appointment Confirmation - Prudental Clinic"
+    msg["From"] = os.getenv("EMAIL_SENDER")
+    msg["To"] = recipient_email
+    content = f"""
+Hello {patient_name},
+
+Your dental appointment has been confirmed.
+
+🕒 Date & Time: {appointment_time}
+🦷 Service: {service}
+
+If you need to cancel or reschedule, please contact us via email or phone number.
+
+Best regards,
+Prudental Dental Clinic
+"""
+    msg.set_content(content)
+    try:
+        with smtplib.SMTP("smtp.gmail.com", 587) as server:
+            server.starttls()
+            server.login(os.getenv("EMAIL_SENDER"), os.getenv("EMAIL_PASSWORD"))
+            server.send_message(msg)
+    except Exception as e:
+        print(f"Error sending email: {e}")
+
+send_confirmation_email(
+    recipient_email="beringtafa5@gmail.com",
+    patient_name="Bering Tafa",
+    appointment_time=datetime.now().strftime("%B %d, %Y at %H:%M"),
+    service="Emergency Care"
+)
+
 # API Endpoints
 app = FastAPI()
 app.add_middleware(
@@ -141,6 +178,13 @@ Notes: {item.message or 'N/A'}
             )
     if result is None or result.get("status") != "success":
         raise HTTPException(status_code=500, detail="Failed to create appointment")
+    else:
+        send_confirmation_email(
+            recipient_email=item.email,
+            patient_name=f"{item.name} {item.surname}",
+            appointment_time=item.start_time.strftime("%B %d, %Y at %H:%M"),
+            service=item.service
+        )
     return result
 
 @app.get("/")
