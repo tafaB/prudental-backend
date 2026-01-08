@@ -8,8 +8,7 @@ from pydantic import BaseModel
 from datetime import date, datetime, time, timedelta
 from zoneinfo import ZoneInfo
 from googleapiclient.errors import HttpError
-import smtplib
-from email.message import EmailMessage
+import resend
 
 if os.getenv("RENDER") is None: 
     from dotenv import load_dotenv
@@ -96,31 +95,27 @@ def create_calendar_event(service, title, description, start_time, end_time):
 
 # Email Confirmation
 def send_confirmation_email(recipient_email, patient_name, appointment_time, service):
-    msg = EmailMessage()
-    msg["Subject"] = "Appointment Confirmation - Prudental Clinic"
-    msg["From"] = os.getenv("EMAIL_SENDER")
-    msg["To"] = recipient_email
-    content = f"""
-Hello {patient_name},
-
-Your dental appointment has been confirmed.
-
-🕒 Date & Time: {appointment_time}
-🦷 Service: {service}
-
-If you need to cancel or reschedule, please contact us via email or phone number.
-
-Best regards,
-Prudental Dental Clinic
-"""
-    msg.set_content(content)
-    try:
-        with smtplib.SMTP("smtp.gmail.com", 587) as server:
-            server.starttls()
-            server.login(os.getenv("EMAIL_SENDER"), os.getenv("EMAIL_PASSWORD"))
-            server.send_message(msg)
-    except Exception as e:
-        print(f"Error sending email: {e}")
+    resend.api_key = os.environ.get("RESEND_API_KEY")
+    params = {
+        "from": "Prudental Clinic <mail@prudental.al>",
+        "reply_to": "prudentalclinic2025@gmail.com",
+        "to": ["beringtafa5@gmail.com"],
+        "subject": "Your Appointment is Confirmed!",
+        "html": f"""
+            <p>Hello <i>{patient_name}</i> 👋,</p>
+            <p>Your dental appointment has been confirmed!</p>
+            <ul>
+                <li> 🗓️ <strong>Date & Time:</strong> {appointment_time}</li>
+                <li> 🦷 <strong>Service:</strong> {service}</li>
+                <li> 📍 <strong>Location:</strong> Rruga Jordan Misja, Tiranë</li>
+            </ul>
+            <p>We look forward to seeing you!</p>
+            <p>If you need to reschedule, reply to this email.</p>
+            <p>Best regards,<br>
+               <strong>Prudental Dental Clinic</strong></p>
+        """
+    }
+    email = resend.Emails.send(params)
 
 # API Endpoints
 app = FastAPI()
