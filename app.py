@@ -99,7 +99,7 @@ def send_confirmation_email(recipient_email, patient_name, appointment_time, ser
     params = {
         "from": "Prudental Clinic <mail@prudental.al>",
         "reply_to": "prudentalclinic2025@gmail.com",
-        "to": ["beringtafa5@gmail.com"],
+        "to": [recipient_email],
         "subject": "Your Appointment is Confirmed!",
         "html": f"""
             <p>Hello <i>{patient_name}</i> 👋,</p>
